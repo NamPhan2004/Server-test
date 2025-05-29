@@ -1,5 +1,4 @@
 const express = require("express");
-const serverless = require("serverless-http");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 
@@ -19,7 +18,7 @@ app.post("/", (req, res) => {
     const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: "30s" });
     return res.json({ token });
   }
-  return res.status(401).json({ message: "Login failed" });
+  res.status(401).json({ message: "Login failed" });
 });
 
-module.exports = serverless(app);
+module.exports = app; // ✅ export thẳng Express app
