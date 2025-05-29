@@ -1,22 +1,26 @@
-// api/login.js  (đã tối giản)
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 
 const app = express();
 app.use(cors());
-app.use(express.json());
 
 const SECRET_KEY = process.env.SECRET_KEY || "your-secret-key";
 
-app.post("/", (req, res) => {
-  const { username, password } = req.body;
-  if (username === "user" && password === "123") {
-    const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: "30s" });
-    return res.json({ token });
-  }
-  res.status(401).json({ message: "Login failed" });
+/**
+ * GET /api/profile
+ * header: Authorization: Bearer <token>
+ */
+app.get("/api/profile", (req, res) => {
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ message: "No token" });
+
+  const token = auth.split(" ")[1];
+  jwt.verify(token, SECRET_KEY, (err, user) => {
+    if (err)
+      return res.status(401).json({ message: "Token invalid or expired" });
+    res.json({ message: "Welcome!", user });
+  });
 });
 
-/* ✨ Chỉ cần export app – KHÔNG dùng serverless-http */
-module.exports = app;
+module.exports = app; // ✅ export thẳng Express app
