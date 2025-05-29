@@ -4,7 +4,26 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 
 const app = express();
-app.use(cors());
+
+const allowedOrigins = [
+  "https://fir-f51a2.web.app", // domain frontend của bạn trên Firebase Hosting
+  //   "http://localhost:3000",                  // nếu test local
+  "https://server-test-2mb5.vercel.app", // chính domain API (option, không bắt buộc)
+];
+
+// Cấu hình CORS để chỉ cho phép các domain hợp lệ
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Nếu không có origin (postman, curl, server side), hoặc domain nằm trong danh sách allowedOrigins thì cho phép
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  })
+);
 app.use(express.json());
 
 const SECRET_KEY = "your-secret-key";
